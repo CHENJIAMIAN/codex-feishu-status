@@ -117,7 +117,7 @@ func TestSettingsCardIncludesActionValues(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(card, `"action":"set_window"`) || !strings.Contains(card, `"action":"refresh"`) {
+	if !strings.Contains(card, `"action":"set_window"`) || !strings.Contains(card, `"value":"60"`) || !strings.Contains(card, `"action":"refresh"`) {
 		t.Fatalf("settings card actions missing: %s", card)
 	}
 }

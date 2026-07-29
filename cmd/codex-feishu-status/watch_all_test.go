@@ -22,7 +22,7 @@ func TestApplySettingsActionPersistsWindow(t *testing.T) {
 	store := newConfigStore(t.TempDir(), config.Config{})
 	toast, resendOverview, err := applySettingsAction(store, feishu.CardAction{Value: map[string]any{
 		"action": "set_window",
-		"value":  "15",
+		"value":  "60",
 	}})
 	if err != nil {
 		t.Fatal(err)
@@ -33,8 +33,8 @@ func TestApplySettingsActionPersistsWindow(t *testing.T) {
 	if !resendOverview {
 		t.Fatal("settings change should resend the overview")
 	}
-	if got := store.Snapshot().OverviewPreferences.ActiveWindowMinutes; got != 15 {
-		t.Fatalf("ActiveWindowMinutes = %d, want 15", got)
+	if got := store.Snapshot().OverviewPreferences.ActiveWindowMinutes; got != 60 {
+		t.Fatalf("ActiveWindowMinutes = %d, want 60", got)
 	}
 }
 

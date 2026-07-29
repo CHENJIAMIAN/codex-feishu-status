@@ -297,7 +297,7 @@ func actionValue(values map[string]any, key string) string {
 }
 
 func supportedWindow(minutes int) bool {
-	for _, candidate := range []int{1, 5, 15, 30} {
+	for _, candidate := range []int{1, 5, 15, 30, 60} {
 		if minutes == candidate {
 			return true
 		}

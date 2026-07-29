@@ -220,8 +220,8 @@ func overviewTemplate(snapshots []Snapshot) string {
 }
 
 func windowButtons(selected int) []any {
-	buttons := make([]any, 0, 4)
-	for _, minutes := range []int{1, 5, 15, 30} {
+	buttons := make([]any, 0, 5)
+	for _, minutes := range []int{1, 5, 15, 30, 60} {
 		buttons = append(buttons, settingsButton(strconv.Itoa(minutes)+" 分钟", "set_window", strconv.Itoa(minutes), minutes == selected))
 	}
 	return buttons
