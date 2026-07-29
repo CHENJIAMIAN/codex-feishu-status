@@ -76,7 +76,7 @@ go build -o .\dist\codex-feishu-status.exe .\cmd\codex-feishu-status
 
 ## 常驻运行与托盘
 
-在 Windows 上运行下面的安装脚本一次，即可注册当前用户的两个登录任务：总览桥接器会在异常退出后自动重启，托盘则通过 `wscript.exe` 无窗口启动 PowerShell STA 进程，只保留通知区域图标。
+在 Windows 上运行下面的安装脚本一次，即可注册当前用户的两个登录任务：总览桥接器由监护脚本在异常退出后每 15 秒重试，计划任务也保留失败重启兜底；托盘则通过 `wscript.exe` 无窗口启动 PowerShell STA 进程，只保留通知区域图标。
 
 ```powershell
 .\scripts\Install-CodexFeishuStatus.ps1

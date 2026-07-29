@@ -7,6 +7,8 @@ Add-Type -AssemblyName System.Drawing
 
 $root = Split-Path -Parent $PSScriptRoot
 $binary = Join-Path $root 'dist\codex-feishu-status.exe'
+$bridgeSupervisor = Join-Path $PSScriptRoot 'Run-CodexFeishuStatusBridge.ps1'
+$startScript = Join-Path $PSScriptRoot 'Start-CodexFeishuStatus.ps1'
 $bridgeTaskName = 'Codex Feishu Status Bridge'
 
 $mutexCreated = $false
@@ -29,7 +31,8 @@ function Get-BridgeProcess {
 function Get-BridgeProcessRoots {
     $binaryPattern = [regex]::Escape($binary)
     Get-CimInstance Win32_Process | Where-Object {
-        ($_.Name -eq 'pwsh.exe' -and $_.CommandLine -like '*Start-CodexFeishuStatus.ps1*' -and $_.CommandLine -like '*-Mode watch-all*') -or
+        ($_.Name -eq 'pwsh.exe' -and $_.CommandLine -like "*-File `"$bridgeSupervisor`"*") -or
+        ($_.Name -eq 'pwsh.exe' -and $_.CommandLine -like "*-File `"$startScript`" -Mode watch-all*") -or
         ($_.Name -eq 'codex-feishu-status.exe' -and $_.CommandLine -match $binaryPattern -and $_.CommandLine -match '\bwatch-all\b')
     }
 }
@@ -78,7 +81,7 @@ function Stop-Bridge {
     }
     foreach ($processRoot in @(Get-BridgeProcessRoots)) {
         & taskkill.exe /PID $processRoot.ProcessId /T /F 2>$null | Out-Null
-        if ($LASTEXITCODE -notin @(0, 128)) {
+        if ($null -ne (Get-CimInstance Win32_Process -Filter "ProcessId = $($processRoot.ProcessId)" -ErrorAction SilentlyContinue)) {
             throw "无法停止状态服务进程树，PID：$($processRoot.ProcessId)"
         }
     }

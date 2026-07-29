@@ -9,6 +9,7 @@ $ErrorActionPreference = 'Stop'
 
 $root = Split-Path -Parent $PSScriptRoot
 $startScript = Join-Path $PSScriptRoot 'Start-CodexFeishuStatus.ps1'
+$bridgeSupervisor = Join-Path $PSScriptRoot 'Run-CodexFeishuStatusBridge.ps1'
 $trayLauncher = Join-Path $PSScriptRoot 'Start-CodexFeishuStatusTray.vbs'
 $binary = Join-Path $root 'dist\codex-feishu-status.exe'
 $trayScript = Join-Path $PSScriptRoot 'CodexFeishuStatusTray.ps1'
@@ -28,7 +29,8 @@ function Get-ManagedProcessRoots {
     switch ($Name) {
         'Codex Feishu Status Bridge' {
             Get-CimInstance Win32_Process | Where-Object {
-                ($_.Name -eq 'pwsh.exe' -and $_.CommandLine -like '*Start-CodexFeishuStatus.ps1*' -and $_.CommandLine -like '*-Mode watch-all*') -or
+                ($_.Name -eq 'pwsh.exe' -and $_.CommandLine -like "*-File `"$bridgeSupervisor`"*") -or
+                ($_.Name -eq 'pwsh.exe' -and $_.CommandLine -like "*-File `"$startScript`" -Mode watch-all*") -or
                 ($_.Name -eq 'codex-feishu-status.exe' -and $_.CommandLine -match [regex]::Escape($binary) -and $_.CommandLine -match '\bwatch-all\b')
             }
         }
@@ -49,7 +51,7 @@ function Stop-ManagedProcessTrees {
 
     foreach ($process in @(Get-ManagedProcessRoots -Name $Name)) {
         & taskkill.exe /PID $process.ProcessId /T /F 2>$null | Out-Null
-        if ($LASTEXITCODE -notin @(0, 128)) {
+        if ($null -ne (Get-CimInstance Win32_Process -Filter "ProcessId = $($process.ProcessId)" -ErrorAction SilentlyContinue)) {
             throw "无法停止 $Name 的进程树，PID：$($process.ProcessId)"
         }
     }
@@ -97,7 +99,7 @@ if ($Uninstall) {
     exit 0
 }
 
-foreach ($path in @($startScript, $trayLauncher)) {
+foreach ($path in @($startScript, $bridgeSupervisor, $trayLauncher)) {
     if (-not (Test-Path -LiteralPath $path)) {
         throw "缺少脚本：$path"
     }
@@ -132,7 +134,7 @@ $traySettings = New-ScheduledTaskSettingsSet `
     -RestartCount 999 `
     -RestartInterval (New-TimeSpan -Minutes 1)
 
-$bridgeArguments = '-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "{0}" -Mode watch-all' -f $startScript
+$bridgeArguments = '-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "{0}"' -f $bridgeSupervisor
 $trayArguments = '//B "{0}"' -f $trayLauncher
 $bridgeAction = New-ScheduledTaskAction -Execute $pwsh -Argument $bridgeArguments -WorkingDirectory $root
 $trayAction = New-ScheduledTaskAction -Execute $wscript -Argument $trayArguments -WorkingDirectory $root
