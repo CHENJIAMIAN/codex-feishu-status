@@ -74,6 +74,22 @@ go build -o .\dist\codex-feishu-status.exe .\cmd\codex-feishu-status
 
 如果本机没有 Codex DPAPI 凭据包装器，启动脚本会使用当前进程已注入的 `FEISHU_CODEX_STATUS_APP_SECRET`；没有该变量时会明确报错。其他系统可直接运行二进制，并由自己的进程密钥管理方案注入同名环境变量。
 
+## 常驻运行与托盘
+
+在 Windows 上运行下面的安装脚本一次，即可注册当前用户的两个登录任务：总览桥接器会在异常退出后自动重启，托盘则通过 `wscript.exe` 无窗口启动 PowerShell STA 进程，只保留通知区域图标。
+
+```powershell
+.\scripts\Install-CodexFeishuStatus.ps1
+```
+
+托盘菜单提供双语状态、刷新总览、启动/停止服务和打开项目目录。点击“刷新总览”会重启桥接器并重新连接飞书，随后更新现有总览卡。任务仍通过 `Start-CodexFeishuStatus.ps1` 使用 DPAPI 凭据包装器，不会把 App Secret 存进计划任务。
+
+更新二进制或脚本后，再运行一次安装脚本即可更新任务定义并重新启动服务。移除常驻服务和托盘任务：
+
+```powershell
+.\scripts\Install-CodexFeishuStatus.ps1 -Uninstall
+```
+
 ## 卡片设置与性能边界
 
 在已绑定聊天中发送 `/help`、`设置` 或 `配置` 即可打开设置卡。设置仅作用于该聊天，卡片操作会立即保存并重新发送总览。
