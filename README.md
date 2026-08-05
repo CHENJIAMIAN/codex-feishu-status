@@ -1,5 +1,12 @@
 # Codex 飞书实时状态
 
+<!-- codex-github-rules:bilingual-summary -->
+> **中文简介**：将本机 Codex 会话的实时状态、首个请求和工作目录同步到飞书卡片
+
+> **English summary**: Sync live local Codex session status, first prompts, and working directories to Feishu cards
+
+---
+
 把本机正在运行的 Codex 会话汇总成一张可实时更新的飞书卡片。无需反复切回终端，就能在飞书里判断每个会话正在做什么、是否仍在运行，以及它工作在哪个目录。
 
 > 这是一个本地状态桥接器：它观察 `cxr` 提供的 Codex 会话事件并发送飞书卡片，不会控制 Codex、执行任务或改动你的代码。
