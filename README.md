@@ -1,3 +1,5 @@
+[English](./README.en.md)
+
 # Codex 飞书实时状态
 
 <!-- codex-github-rules:bilingual-summary -->
